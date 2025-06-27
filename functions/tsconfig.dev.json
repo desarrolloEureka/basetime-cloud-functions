@@ -1,0 +1,7 @@
+{
+  "include": [
+    ".eslintrc.js",
+    "src/**/*",
+    "types.d.ts"
+  ]
+}
