@@ -32,5 +32,6 @@ module.exports = {
     "import/no-unresolved": 0,
     "indent": ["error", 2],
     "object-curly-spacing": ["error", "always"],
+    "linebreak-style": ["error", "windows"], // Acepta CRLF
   },
 };

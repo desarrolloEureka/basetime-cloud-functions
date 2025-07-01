@@ -16,6 +16,8 @@ interface DataInterface {
     firstName: string;
     lastName: string;
   };
+  cancellationAuthor?: string | null;
+  initAt?: string | null;
 }
 
 // On Meet Document Updated
@@ -90,6 +92,12 @@ const onMeetUpdated = onDocumentUpdated("meets/{documentId}", async (event) => {
       });
     }
     break;
+  }
+  if (updatedData.initAt != null && currentData.initAt == null) {
+    await onStartMeet({
+      updatedData,
+      supplier,
+    });
   }
 });
 
@@ -189,7 +197,7 @@ const onComplete = async ({
 
     await PushNotification.send({
       title: "¡Felicidades!",
-      body: "Has recibide un pago por tu referido.",
+      body: "Has recibido un pago por tu referido.",
       fcm: promoter.fcm,
       uid: promoter.id,
     });
@@ -215,6 +223,13 @@ const onComplete = async ({
     currentType: "pending",
     basetimeCommission: comBaseTime,
     wompiCommission: comWompi,
+  });
+
+  await PushNotification.send({
+    title: "¡Nueva calificación!",
+    body: `${updatedData.author.firstName} ha calificado la sesión.`,
+    uid: supplier.id,
+    fcm: supplier.fcm,
   });
 };
 
@@ -258,6 +273,73 @@ const onCancel = async ({
     description: "Reembolsado",
     basetimeCommission: comBaseTime,
     wompiCommission: comWompi,
+  });
+
+  const supplierCancelled = updatedData.cancellationAuthor === supplier.id;
+  const authorCancelled =
+    updatedData.author.id === updatedData.cancellationAuthor;
+  const authorData = await Users.getByUid(updatedData.author.id);
+
+  // Si el proveedor canceló -> notificar al cliente
+  if (supplierCancelled) {
+    await PushNotification.send({
+      uid: updatedData.author.id,
+      fcm: authorData.fcm,
+      title: "Tu sesión fue cancelada",
+      body:
+        `${supplier.firstName} ha cancelado la sesión. ` +
+        "El dinero ha sido reembolsado.",
+    });
+  }
+
+  // Si el cliente canceló -> notificar al proveedor
+  if (authorCancelled) {
+    await PushNotification.send({
+      uid: supplier.id,
+      fcm: supplier.fcm,
+      title: "Tu sesión fue cancelada",
+      body: `${updatedData.author.firstName} ha cancelado la sesión.`,
+    });
+  }
+
+  // Si el sistema canceló -> notificar a ambos
+  if (!supplierCancelled && !authorCancelled) {
+    await PushNotification.send({
+      uid: supplier.id,
+      fcm: supplier.fcm,
+      title: "Tu sesión fue cancelada",
+      body: "El sistema ha cancelado la sesión.",
+    });
+
+    await PushNotification.send({
+      uid: updatedData.author.id,
+      fcm: authorData.fcm,
+      title: "Tu sesión fue cancelada",
+      body: "El sistema ha cancelado la sesión. El dinero ha sido reembolsado.",
+    });
+  }
+};
+
+const onStartMeet = async ({
+  updatedData,
+  supplier,
+}: {
+  updatedData: DataInterface;
+  supplier: UserInterface;
+}) => {
+  const authorData = await Users.getByUid(updatedData.author.id);
+  await PushNotification.send({
+    uid: supplier.id,
+    fcm: supplier.fcm,
+    title: "Tu sesión ha comenzado",
+    body: `Has validado la clave de ${updatedData.author.firstName}.`,
+  });
+
+  await PushNotification.send({
+    uid: updatedData.author.id,
+    fcm: authorData.fcm,
+    title: "Tu sesión ha comenzado",
+    body: `${supplier.firstName} ha validado tu clave.`,
   });
 };
 
