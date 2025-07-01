@@ -48,7 +48,7 @@ const onMeetUpdated = onDocumentUpdated("meets/{documentId}", async (event) => {
         uid: updatedData.author.id ?? "",
         title: "Solicitud de Meet Aceptada",
         body: `${supplier.firstName} ha aceptado tu solicitud.`,
-        fromUid: currentData.author.id ?? "",
+        fromUid: supplier.id ?? "",
       });
     }
     break;
@@ -68,7 +68,7 @@ const onMeetUpdated = onDocumentUpdated("meets/{documentId}", async (event) => {
         title: "Nuevo pago en reserva",
         body: `${updatedData.author.firstName} ha reservado la sesión.`,
         uid: supplier.id ?? "",
-        fromUid: currentData.author.id ?? "",
+        fromUid: updatedData.author.id ?? "",
       });
     }
     break;
@@ -206,7 +206,7 @@ const onComplete = async ({
       body: "Has recibido un pago por tu referido.",
       fcm: promoter.fcm,
       uid: promoter.id,
-      fromUid: authorId ?? "",
+      fromUid: "",
     });
 
     commission += promoterAmount;
@@ -237,6 +237,7 @@ const onComplete = async ({
     body: `${updatedData.author.firstName} ha calificado la sesión.`,
     uid: supplier.id,
     fcm: supplier.fcm,
+    fromUid: updatedData.author.id ?? "",
   });
 };
 
@@ -296,6 +297,7 @@ const onCancel = async ({
       body:
         `${supplier.firstName} ha cancelado la sesión. ` +
         "El dinero ha sido reembolsado.",
+      fromUid: supplier.id ?? "",
     });
   }
 
@@ -306,6 +308,7 @@ const onCancel = async ({
       fcm: supplier.fcm,
       title: "Tu sesión fue cancelada",
       body: `${updatedData.author.firstName} ha cancelado la sesión.`,
+      fromUid: updatedData.author.id ?? "",
     });
   }
 
@@ -316,6 +319,7 @@ const onCancel = async ({
       fcm: supplier.fcm,
       title: "Tu sesión fue cancelada",
       body: "El sistema ha cancelado la sesión.",
+      fromUid: "",
     });
 
     await PushNotification.send({
@@ -323,6 +327,7 @@ const onCancel = async ({
       fcm: authorData.fcm,
       title: "Tu sesión fue cancelada",
       body: "El sistema ha cancelado la sesión. El dinero ha sido reembolsado.",
+      fromUid: "",
     });
   }
 };
@@ -340,6 +345,7 @@ const onStartMeet = async ({
     fcm: supplier.fcm,
     title: "Tu sesión ha comenzado",
     body: `Has validado la clave de ${updatedData.author.firstName}.`,
+    fromUid: updatedData.author.id ?? "",
   });
 
   await PushNotification.send({
@@ -347,6 +353,7 @@ const onStartMeet = async ({
     fcm: authorData.fcm,
     title: "Tu sesión ha comenzado",
     body: `${supplier.firstName} ha validado tu clave.`,
+    fromUid: supplier.id ?? "",
   });
 };
 
