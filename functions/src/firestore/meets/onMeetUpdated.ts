@@ -30,6 +30,7 @@ const onMeetUpdated = onDocumentUpdated("meets/{documentId}", async (event) => {
     return;
   }
 
+
   const commissions = await getCommissions();
   const comBaseTime = commissions.basetime;
   const comWompi = commissions.wompi;
@@ -43,10 +44,11 @@ const onMeetUpdated = onDocumentUpdated("meets/{documentId}", async (event) => {
     if (currentData.status !== "aceptNotPayed") {
       const authorData = await Users.getByUid(updatedData.author.id);
       await PushNotification.send({
-        fcm: authorData.fcm,
-        uid: updatedData.author.id,
+        fcm: authorData.fcm ?? "",
+        uid: updatedData.author.id ?? "",
         title: "Solicitud de Meet Aceptada",
         body: `${supplier.firstName} ha aceptado tu solicitud.`,
+        fromUid: currentData.author.id ?? "",
       });
     }
     break;
@@ -62,10 +64,11 @@ const onMeetUpdated = onDocumentUpdated("meets/{documentId}", async (event) => {
       });
 
       await PushNotification.send({
-        fcm: supplier.fcm,
+        fcm: supplier.fcm ?? "",
         title: "Nuevo pago en reserva",
         body: `${updatedData.author.firstName} ha reservado la sesión.`,
-        uid: supplier.id,
+        uid: supplier.id ?? "",
+        fromUid: currentData.author.id ?? "",
       });
     }
     break;
@@ -78,6 +81,7 @@ const onMeetUpdated = onDocumentUpdated("meets/{documentId}", async (event) => {
         comWompi,
         comReferrals,
         supplier,
+        authorId: currentData.author.id,
       });
     }
     break;
@@ -159,6 +163,7 @@ const onComplete = async ({
   comWompi,
   comReferrals,
   supplier,
+  authorId,
 }: {
   meetDocument: string;
   updatedData: DataInterface;
@@ -166,6 +171,7 @@ const onComplete = async ({
   comWompi: number;
   comReferrals: number;
   supplier: UserInterface;
+  authorId: string;
 }) => {
   let commission = ((comBaseTime + comWompi) / 100) * updatedData.amount;
 
@@ -200,6 +206,7 @@ const onComplete = async ({
       body: "Has recibido un pago por tu referido.",
       fcm: promoter.fcm,
       uid: promoter.id,
+      fromUid: authorId ?? "",
     });
 
     commission += promoterAmount;

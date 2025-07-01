@@ -18,10 +18,11 @@ const onMatchCreated = onDocumentCreated(
       .get();
 
     await PushNotification.send({
-      uid: supplierSnapshot.id,
-      fcm: supplierSnapshot.data()?.fcm ?? "",
       title: "¡Tienes un nuevo Match!",
       body: `${data.client.firstName} ${data.client.lastName} ha hecho match`,
+      fcm: supplierSnapshot.data()?.fcm ?? "",
+      uid: supplierSnapshot.id,
+      fromUid: data.client.id ?? "",
     });
   }
 );
