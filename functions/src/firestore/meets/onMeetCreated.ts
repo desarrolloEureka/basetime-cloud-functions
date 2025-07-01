@@ -25,8 +25,9 @@ const onMeetCreated = onDocumentCreated("meets/{documentId}", async (event) => {
   await PushNotification.send({
     title: "Tienes una nueva solicitud",
     body: `${data.author.id} ha solicitado una neuva reunión.`,
-    fcm: supplier.fcm,
-    uid: supplier.id,
+    fcm: supplier.fcm ?? "",
+    uid: supplier.id ?? "",
+    fromUid: data.author.id ?? "",
   });
 });
 

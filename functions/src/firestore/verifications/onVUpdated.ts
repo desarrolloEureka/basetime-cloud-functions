@@ -33,6 +33,7 @@ const onVerificationUpdated = onDocumentUpdated(
         uid: user.id,
         title: "Verificación completada",
         body,
+        fromUid: "",
       });
     }
   }

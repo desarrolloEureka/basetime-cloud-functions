@@ -1,3 +1,5 @@
+
+
 import { messaging } from "../adminInit";
 import { Timestamp } from "firebase-admin/firestore";
 import Collections from "../firestore/collections";
@@ -7,9 +9,11 @@ export interface sendMessageInterface {
   fcm: string;
   title: string;
   body: string;
+  fromUid: string;
 }
 
-const sendMessage = async ({ uid, fcm, title, body }: sendMessageInterface) => {
+const sendMessage = async ({ uid, fcm, title, body, fromUid }
+  : sendMessageInterface) => {
   await messaging().send({
     token: fcm,
     notification: {
@@ -19,12 +23,11 @@ const sendMessage = async ({ uid, fcm, title, body }: sendMessageInterface) => {
   });
 
   await Collections.notifications.add({
-    title: title,
     content: body,
     createdAt: Timestamp.now(),
-    image: "https://via.placeholder.com/512",
     read: false,
     to: uid,
+    from: fromUid ?? "",
   });
 };
 
