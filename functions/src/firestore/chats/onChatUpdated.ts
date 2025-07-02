@@ -37,12 +37,17 @@ const onChatUpdated = onDocumentUpdated("chats/{documentId}", async (event) => {
     const author = authorIsSupplier ? supplier : client;
     const to = authorIsSupplier ? client : supplier;
 
+    const authorAlreadySentMessages = currentData.messages.some(
+      (msg) => msg.author.id === message.author.id
+    );
+
     await PushNotification.send({
       title: author.firstName,
       body: message.text,
       fcm: to.fcm,
       uid: to.id,
       fromUid: author.id ?? "",
+      shouldSave: !authorAlreadySentMessages,
     });
   }
 });

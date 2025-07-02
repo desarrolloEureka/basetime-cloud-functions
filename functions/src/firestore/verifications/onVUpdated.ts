@@ -34,6 +34,7 @@ const onVerificationUpdated = onDocumentUpdated(
         title: "Verificación completada",
         body,
         fromUid: "",
+        shouldSave: true,
       });
     }
   }

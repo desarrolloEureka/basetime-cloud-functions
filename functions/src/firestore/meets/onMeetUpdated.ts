@@ -49,6 +49,7 @@ const onMeetUpdated = onDocumentUpdated("meets/{documentId}", async (event) => {
         title: "Solicitud de Meet Aceptada",
         body: `${supplier.firstName} ha aceptado tu solicitud.`,
         fromUid: supplier.id ?? "",
+        shouldSave: true,
       });
     }
     break;
@@ -69,6 +70,7 @@ const onMeetUpdated = onDocumentUpdated("meets/{documentId}", async (event) => {
         body: `${updatedData.author.firstName} ha reservado la sesión.`,
         uid: supplier.id ?? "",
         fromUid: updatedData.author.id ?? "",
+        shouldSave: true,
       });
     }
     break;
@@ -81,7 +83,6 @@ const onMeetUpdated = onDocumentUpdated("meets/{documentId}", async (event) => {
         comWompi,
         comReferrals,
         supplier,
-        authorId: currentData.author.id,
       });
     }
     break;
@@ -163,7 +164,6 @@ const onComplete = async ({
   comWompi,
   comReferrals,
   supplier,
-  authorId,
 }: {
   meetDocument: string;
   updatedData: DataInterface;
@@ -171,7 +171,6 @@ const onComplete = async ({
   comWompi: number;
   comReferrals: number;
   supplier: UserInterface;
-  authorId: string;
 }) => {
   let commission = ((comBaseTime + comWompi) / 100) * updatedData.amount;
 
@@ -207,6 +206,7 @@ const onComplete = async ({
       fcm: promoter.fcm,
       uid: promoter.id,
       fromUid: "",
+      shouldSave: true,
     });
 
     commission += promoterAmount;
@@ -238,6 +238,7 @@ const onComplete = async ({
     uid: supplier.id,
     fcm: supplier.fcm,
     fromUid: updatedData.author.id ?? "",
+    shouldSave: true,
   });
 };
 
@@ -298,6 +299,7 @@ const onCancel = async ({
         `${supplier.firstName} ha cancelado la sesión. ` +
         "El dinero ha sido reembolsado.",
       fromUid: supplier.id ?? "",
+      shouldSave: true,
     });
   }
 
@@ -309,6 +311,7 @@ const onCancel = async ({
       title: "Tu sesión fue cancelada",
       body: `${updatedData.author.firstName} ha cancelado la sesión.`,
       fromUid: updatedData.author.id ?? "",
+      shouldSave: true,
     });
   }
 
@@ -320,6 +323,7 @@ const onCancel = async ({
       title: "Tu sesión fue cancelada",
       body: "El sistema ha cancelado la sesión.",
       fromUid: "",
+      shouldSave: true,
     });
 
     await PushNotification.send({
@@ -328,6 +332,7 @@ const onCancel = async ({
       title: "Tu sesión fue cancelada",
       body: "El sistema ha cancelado la sesión. El dinero ha sido reembolsado.",
       fromUid: "",
+      shouldSave: true,
     });
   }
 };
@@ -346,6 +351,7 @@ const onStartMeet = async ({
     title: "Tu sesión ha comenzado",
     body: `Has validado la clave de ${updatedData.author.firstName}.`,
     fromUid: updatedData.author.id ?? "",
+    shouldSave: true,
   });
 
   await PushNotification.send({
@@ -354,6 +360,7 @@ const onStartMeet = async ({
     title: "Tu sesión ha comenzado",
     body: `${supplier.firstName} ha validado tu clave.`,
     fromUid: supplier.id ?? "",
+    shouldSave: true,
   });
 };
 

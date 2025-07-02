@@ -11,18 +11,22 @@ const onMatchCreated = onDocumentCreated(
       console.log("No data associated with the event");
       return;
     }
+
     const data = snapshot.data();
 
     const supplierSnapshot = await Collections.users
       .doc(data.supplier.id)
       .get();
 
+    const supplierData = supplierSnapshot.data();
+
     await PushNotification.send({
       title: "¡Tienes un nuevo Match!",
       body: `${data.client.firstName} ${data.client.lastName} ha hecho match`,
-      fcm: supplierSnapshot.data()?.fcm ?? "",
+      fcm: supplierData?.fcm ?? "",
       uid: supplierSnapshot.id,
       fromUid: data.client.id ?? "",
+      shouldSave: true,
     });
   }
 );

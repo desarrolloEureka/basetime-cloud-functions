@@ -10,9 +10,10 @@ export interface sendMessageInterface {
   title: string;
   body: string;
   fromUid: string;
+  shouldSave?: boolean;
 }
 
-const sendMessage = async ({ uid, fcm, title, body, fromUid }
+const sendMessage = async ({ uid, fcm, title, body, fromUid, shouldSave }
   : sendMessageInterface) => {
   await messaging().send({
     token: fcm,
@@ -22,13 +23,15 @@ const sendMessage = async ({ uid, fcm, title, body, fromUid }
     },
   });
 
-  await Collections.notifications.add({
-    content: body,
-    createdAt: Timestamp.now(),
-    read: false,
-    to: uid,
-    from: fromUid ?? "",
-  });
+  if (shouldSave) {
+    await Collections.notifications.add({
+      content: body,
+      createdAt: Timestamp.now(),
+      read: false,
+      to: uid,
+      from: fromUid ?? "",
+    });
+  }
 };
 
 export default sendMessage;
